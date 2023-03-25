@@ -27,7 +27,8 @@ $ curl http://localhost:8000/
  ],
  "needs_talos_update": false,
  "status": "NEEDS-KUBE-UPDATE-TO-v1.26.3-FROM-v1.26.1"
-}[alex@molly talos-check]$ curl http://localhost:8000/
+}
+$ curl http://localhost:8000/
 {
  "available_kubernetes_version": "v1.26.3",
  "cluster_kubernetes_version": "v1.26.1",
