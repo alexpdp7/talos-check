@@ -3,7 +3,7 @@ import http.server
 import json
 import socketserver
 
-import talos
+import talos_check
 
 
 class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):

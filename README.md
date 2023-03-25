@@ -1,17 +1,17 @@
 ```
->>> import talos
->>> talos.get_cluster_talos_versions()
+>>> import talos_check
+>>> talos_check.get_cluster_talos_versions()
 ['v1.3.4']
->>> talos.get_available_talos_version()
+>>> talos_check.get_available_talos_version()
 'v1.3.6'
->>> talos.get_available_kubernetes_version()
+>>> talos_check.get_available_kubernetes_version()
 'v1.26.3'
->>> talos.get_cluster_kubernetes_version()
+>>> talos_check.get_cluster_kubernetes_version()
 'v1.26.1'
 ```
 
 ```
-$ poetry run python -m talos.http
+$ poetry run python -m talos_check.http
 ...
 $ curl http://localhost:8000/
 {

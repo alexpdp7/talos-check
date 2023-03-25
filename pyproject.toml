@@ -14,3 +14,6 @@ kubernetes = "^26.1.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+talos-check-http = 'talos_check.http:main'
