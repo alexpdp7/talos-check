@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "talos-check"
+version = "0.1.0"
+description = ""
+authors = ["alex <alex@pdp7.net>"]
+readme = "README.md"
+packages = [{include = "talos_check"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+kubernetes = "^26.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
