@@ -9,10 +9,10 @@ import talos_check
 class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         obj = {
-            "available_kubernetes_version": talos.get_available_kubernetes_version(),
-            "cluster_kubernetes_version": talos.get_cluster_kubernetes_version(),
-            "available_talos_version": talos.get_available_talos_version(),
-            "cluster_talos_versions": talos.get_cluster_talos_versions(),
+            "available_kubernetes_version": talos_check.get_available_kubernetes_version(),
+            "cluster_kubernetes_version": talos_check.get_cluster_kubernetes_version(),
+            "available_talos_version": talos_check.get_available_talos_version(),
+            "cluster_talos_versions": talos_check.get_cluster_talos_versions(),
         }
         obj["needs_kubernetes_update"] = obj["available_kubernetes_version"] != obj["cluster_kubernetes_version"]
         obj["outdated_talos_versions"] = [ctv for ctv in obj["cluster_talos_versions"] if ctv != obj["available_talos_version"]]
