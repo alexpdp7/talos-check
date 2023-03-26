@@ -11,37 +11,31 @@
 ```
 
 ```
-$ poetry run python -m talos_check.http
+$ talos-check-httpd
 ...
-$ curl http://localhost:8000/
+[alex@molly talos-check]$ curl http://localhost:8000/
 {
- "available_kubernetes_version": "v1.26.3",
  "cluster_kubernetes_version": "v1.26.1",
- "available_talos_version": "v1.3.6",
  "cluster_talos_versions": [
   "v1.3.4"
  ],
- "needs_kubernetes_update": true,
- "outdated_talos_versions": [
-  "v1.3.4"
- ],
- "needs_talos_update": false,
- "status": "NEEDS-KUBE-UPDATE-TO-v1.26.3-FROM-v1.26.1"
+ "status": "OK"
 }
-$ curl http://localhost:8000/
+$ curl http://localhost:8000/available
 {
- "available_kubernetes_version": "v1.26.3",
  "cluster_kubernetes_version": "v1.26.1",
- "available_talos_version": "v1.3.6",
  "cluster_talos_versions": [
   "v1.3.4"
  ],
+ "available_kubernetes_version": "v1.26.3",
+ "available_talos_version": "v1.3.6",
  "needs_kubernetes_update": true,
  "outdated_talos_versions": [
   "v1.3.4"
  ],
  "needs_talos_update": true,
  "status": "NEEDS-KUBE-UPDATE-TO-v1.26.3-FROM-v1.26.1,NEEDS-TALOS-UPDATE-TO-v1.3.6-FROM-v1.3.4"
+}
 ```
 
 ```
@@ -55,7 +49,7 @@ $ kubectl set serviceaccount deployment monitor monitor
 $ kubectl expose deployment monitor --port 8000
 $ kubectl create ingress monitor --rule "monitor/=monitor:8000"
 ...
-$ curl http://ingress.address --header "Host: monitor"
+$ curl http://ingress.address/available --header "Host: monitor"
 {
  "available_kubernetes_version": "v1.26.3",
  "cluster_kubernetes_version": "v1.26.1",
@@ -70,5 +64,5 @@ $ curl http://ingress.address --header "Host: monitor"
  "needs_talos_update": true,
  "status": "NEEDS-KUBE-UPDATE-TO-v1.26.3-FROM-v1.26.1,NEEDS-TALOS-UPDATE-TO-v1.3.6-FROM-v1.3.4"
 ...
-$ /usr/lib64/nagios/plugins/check_http -H monitor -I ingress.address -s UPDATED
+$ /usr/lib64/nagios/plugins/check_http -H monitor -I ingress.address -s OK
 ```

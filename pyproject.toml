@@ -8,12 +8,16 @@ packages = [{include = "talos_check"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-kubernetes = "^26.1.0"
+kubernetes = { version = "^26.1.0", optional = true }
+gunicorn = { version = "^20.1.0", optional = true }
 
+[tool.poetry.extras]
+k8s = ["kubernetes"]
+httpd = ["gunicorn"]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-talos-check-http = 'talos_check.http:main'
+talos-check-httpd = 'talos_check.httpd:main'
