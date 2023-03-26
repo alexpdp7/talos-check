@@ -44,10 +44,10 @@ $ kubectl config set-context --namespace monitor --current
 $ kubectl create sa monitor
 $ kubectl create clusterrole get-nodes --verb=get,list --resource=node
 $ kubectl create clusterrolebinding monitor --clusterrole=get-nodes --serviceaccount=monitor:monitor
-$ kubectl create deployment monitor --image=quay.io/alexpdp7/talos-check
+$ kubectl create deployment monitor --image=quay.io/alexpdp7/talos-check --port 8000
 $ kubectl set serviceaccount deployment monitor monitor
-$ kubectl expose deployment monitor --port 8000
-$ kubectl create ingress monitor --rule "monitor/=monitor:8000"
+$ kubectl expose deployment monitor
+$ kubectl create ingress monitor --rule "monitor/*=monitor:8000"
 ...
 $ curl http://ingress.address/available --header "Host: monitor"
 {
