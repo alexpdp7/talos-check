@@ -2,7 +2,9 @@ use talos_check_rs::meta::namespace;
 use talos_check_rs::rbac::{
     cluster_role, cluster_role_binding, policy_rule, service_account, AsRoleRef, AsSubject, Verb,
 };
-use talos_check_rs::workload::{container_port, deployment, Protocol, SetServiceAccount};
+use talos_check_rs::workload::{
+    container_port, deployment, GetIngress, Protocol, SetServiceAccount,
+};
 
 pub(crate) fn main() {
     let namespace_name = "foo";
@@ -22,6 +24,7 @@ pub(crate) fn main() {
         vec![container_port(8000, Protocol::TCP)],
     );
     let deployment = deployment.set_service_account(&service_account);
+    let ingress = services[0].ingress("monitor");
     println!("{}", serde_yaml::to_string(&ns).unwrap());
     println!("{}", serde_yaml::to_string(&service_account).unwrap());
     println!("{}", serde_yaml::to_string(&cluster_role).unwrap());
@@ -30,4 +33,5 @@ pub(crate) fn main() {
     for service in services {
         println!("{}", serde_yaml::to_string(&service).unwrap());
     }
+    println!("{}", serde_yaml::to_string(&ingress).unwrap());
 }

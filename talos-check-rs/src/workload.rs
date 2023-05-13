@@ -7,12 +7,16 @@ use k8s_openapi::{
             Container, ContainerPort, Namespace, PodSpec, PodTemplateSpec, Service, ServiceAccount,
             ServicePort, ServiceSpec,
         },
+        networking::v1::{
+            HTTPIngressPath, HTTPIngressRuleValue, Ingress, IngressBackend, IngressRule,
+            IngressServiceBackend, IngressSpec, ServiceBackendPort,
+        },
     },
     apimachinery::pkg::apis::meta::v1::LabelSelector,
 };
 use kube::core::ObjectMeta;
 
-use crate::meta::{namespaced_metadata, AddLabel};
+use crate::meta::{namespace, namespaced_metadata, AddLabel};
 
 pub fn deployment(
     namespace: &Namespace,
@@ -47,7 +51,7 @@ pub fn deployment(
         }),
         ..Default::default()
     };
-    // TODO: should we do one service instead with all ports?
+    // one service per port so that we can choose to create ingresses more easily
     let services = ports
         .iter()
         .map(|p| Service {
@@ -118,5 +122,45 @@ pub fn container_port(port: i32, protocol: Protocol) -> ContainerPort {
         container_port: port,
         protocol: Some(protocol.to_string()),
         ..Default::default()
+    }
+}
+
+pub trait GetIngress {
+    fn ingress(&self, host_name: &str) -> Ingress;
+}
+
+impl GetIngress for Service {
+    fn ingress(&self, host_name: &str) -> Ingress {
+        Ingress {
+            metadata: namespaced_metadata(
+                &namespace(&self.metadata.namespace.clone().unwrap()),
+                &self.metadata.name.clone().unwrap(),
+            ),
+            spec: Some(IngressSpec {
+                rules: Some(vec![IngressRule {
+                    host: Some(host_name.into()),
+                    http: Some(HTTPIngressRuleValue {
+                        paths: vec![HTTPIngressPath {
+                            backend: IngressBackend {
+                                service: Some(IngressServiceBackend {
+                                    name: self.metadata.name.clone().unwrap(),
+                                    port: Some(ServiceBackendPort {
+                                        number: Some(
+                                            self.spec.clone().unwrap().ports.unwrap()[0].port,
+                                        ),
+                                        ..Default::default()
+                                    }),
+                                }),
+                                ..Default::default()
+                            },
+                            path: Some("/".to_string()),
+                            path_type: "Prefix".to_string(),
+                        }],
+                    }),
+                }]),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
     }
 }
