@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use k8s_openapi::{
     api::{
         apps::v1::{Deployment, DeploymentSpec},
-        core::v1::{Container, Namespace, PodSpec, PodTemplateSpec, ServiceAccount},
+        core::v1::{Container, ContainerPort, Namespace, PodSpec, PodTemplateSpec, ServiceAccount},
     },
     apimachinery::pkg::apis::meta::v1::LabelSelector,
 };
@@ -11,7 +11,12 @@ use kube::core::ObjectMeta;
 
 use crate::meta::{namespaced_metadata, AddLabel};
 
-pub fn deployment(namespace: &Namespace, name: &str, image: &str) -> Deployment {
+pub fn deployment(
+    namespace: &Namespace,
+    name: &str,
+    image: &str,
+    ports: Vec<ContainerPort>,
+) -> Deployment {
     let labels = Some(BTreeMap::from([("app".into(), name.into())]));
     Deployment {
         metadata: namespaced_metadata(namespace, name).add_label("app", name),
@@ -29,6 +34,7 @@ pub fn deployment(namespace: &Namespace, name: &str, image: &str) -> Deployment 
                     containers: vec![Container {
                         name: name.into(),
                         image: Some(image.into()),
+                        ports: Some(ports),
                         ..Default::default()
                     }],
                     ..Default::default()
@@ -66,5 +72,30 @@ impl SetServiceAccount for Deployment {
             .unwrap()
             .service_account_name = account.metadata.name.clone();
         result
+    }
+}
+
+pub enum Protocol {
+    UDP,
+    TCP,
+    SCTP,
+}
+
+impl std::string::ToString for Protocol {
+    fn to_string(&self) -> String {
+        match self {
+            Protocol::UDP => "UDP",
+            Protocol::TCP => "TCP",
+            Protocol::SCTP => "SCTP",
+        }
+        .to_string()
+    }
+}
+
+pub fn container_port(port: i32, protocol: Protocol) -> ContainerPort {
+    ContainerPort {
+        container_port: port,
+        protocol: Some(protocol.to_string()),
+        ..Default::default()
     }
 }

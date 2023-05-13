@@ -2,7 +2,7 @@ use talos_check_rs::meta::namespace;
 use talos_check_rs::rbac::{
     cluster_role, cluster_role_binding, policy_rule, service_account, AsRoleRef, AsSubject, Verb,
 };
-use talos_check_rs::workload::{deployment, SetServiceAccount};
+use talos_check_rs::workload::{container_port, deployment, Protocol, SetServiceAccount};
 
 pub(crate) fn main() {
     let namespace_name = "foo";
@@ -15,8 +15,13 @@ pub(crate) fn main() {
         cluster_role.as_ref(),
         vec![service_account.as_subject()],
     );
-    let deployment = deployment(&ns, "monitor", "quay.io/alexpdp7/talos-check:latest")
-        .set_service_account(&service_account);
+    let deployment = deployment(
+        &ns,
+        "monitor",
+        "quay.io/alexpdp7/talos-check:latest",
+        vec![container_port(8000, Protocol::TCP)],
+    )
+    .set_service_account(&service_account);
     println!("{}", serde_yaml::to_string(&ns).unwrap());
     println!("{}", serde_yaml::to_string(&service_account).unwrap());
     println!("{}", serde_yaml::to_string(&cluster_role).unwrap());
