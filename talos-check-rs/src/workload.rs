@@ -3,7 +3,10 @@ use std::collections::BTreeMap;
 use k8s_openapi::{
     api::{
         apps::v1::{Deployment, DeploymentSpec},
-        core::v1::{Container, ContainerPort, Namespace, PodSpec, PodTemplateSpec, ServiceAccount},
+        core::v1::{
+            Container, ContainerPort, Namespace, PodSpec, PodTemplateSpec, Service, ServiceAccount,
+            ServicePort, ServiceSpec,
+        },
     },
     apimachinery::pkg::apis::meta::v1::LabelSelector,
 };
@@ -16,9 +19,9 @@ pub fn deployment(
     name: &str,
     image: &str,
     ports: Vec<ContainerPort>,
-) -> Deployment {
+) -> (Deployment, Vec<Service>) {
     let labels = Some(BTreeMap::from([("app".into(), name.into())]));
-    Deployment {
+    let deployment = Deployment {
         metadata: namespaced_metadata(namespace, name).add_label("app", name),
         spec: Some(DeploymentSpec {
             selector: LabelSelector {
@@ -27,14 +30,14 @@ pub fn deployment(
             },
             template: PodTemplateSpec {
                 metadata: Some(ObjectMeta {
-                    labels,
+                    labels: labels.clone(),
                     ..Default::default()
                 }),
                 spec: Some(PodSpec {
                     containers: vec![Container {
                         name: name.into(),
                         image: Some(image.into()),
-                        ports: Some(ports),
+                        ports: Some(ports.clone()),
                         ..Default::default()
                     }],
                     ..Default::default()
@@ -43,7 +46,25 @@ pub fn deployment(
             ..Default::default()
         }),
         ..Default::default()
-    }
+    };
+    // TODO: should we do one service instead with all ports?
+    let services = ports
+        .iter()
+        .map(|p| Service {
+            metadata: namespaced_metadata(namespace, name).add_label("app", name),
+            spec: Some(ServiceSpec {
+                selector: labels.clone(),
+                ports: Some(vec![ServicePort {
+                    port: p.container_port,
+                    protocol: p.protocol.clone(),
+                    ..Default::default()
+                }]),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+        .collect();
+    (deployment, services)
 }
 
 pub trait SetServiceAccount {

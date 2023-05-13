@@ -15,16 +15,19 @@ pub(crate) fn main() {
         cluster_role.as_ref(),
         vec![service_account.as_subject()],
     );
-    let deployment = deployment(
+    let (deployment, services) = deployment(
         &ns,
         "monitor",
         "quay.io/alexpdp7/talos-check:latest",
         vec![container_port(8000, Protocol::TCP)],
-    )
-    .set_service_account(&service_account);
+    );
+    let deployment = deployment.set_service_account(&service_account);
     println!("{}", serde_yaml::to_string(&ns).unwrap());
     println!("{}", serde_yaml::to_string(&service_account).unwrap());
     println!("{}", serde_yaml::to_string(&cluster_role).unwrap());
     println!("{}", serde_yaml::to_string(&cluster_role_binding).unwrap());
     println!("{}", serde_yaml::to_string(&deployment).unwrap());
+    for service in services {
+        println!("{}", serde_yaml::to_string(&service).unwrap());
+    }
 }
