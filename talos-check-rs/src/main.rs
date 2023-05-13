@@ -6,16 +6,16 @@ use talos_check_rs::workload::deployment;
 
 pub(crate) fn main() {
     let namespace_name = "foo";
-    let ns = namespace(namespace_name.to_string());
-    let service_account = service_account(&ns, "monitor".to_string());
-    let get_list_nodes = policy_rule(vec!["nodes".to_string()], vec![Verb::List, Verb::Get]);
-    let cluster_role = cluster_role(format!("{namespace_name}-get-nodes"), vec![get_list_nodes]);
+    let ns = namespace(namespace_name);
+    let service_account = service_account(&ns, "monitor");
+    let get_list_nodes = policy_rule(vec!["nodes"], vec![Verb::List, Verb::Get]);
+    let cluster_role = cluster_role(&format!("{namespace_name}-get-nodes"), vec![get_list_nodes]);
     let cluster_role_binding = cluster_role_binding(
-        format!("{namespace_name}-monitor"),
+        &format!("{namespace_name}-monitor"),
         cluster_role.as_ref(),
         vec![service_account.as_subject()],
     );
-    let deployment = deployment(&ns, "monitor".to_string());
+    let deployment = deployment(&ns, "monitor");
     println!("{}", serde_yaml::to_string(&ns).unwrap());
     println!("{}", serde_yaml::to_string(&service_account).unwrap());
     println!("{}", serde_yaml::to_string(&cluster_role).unwrap());

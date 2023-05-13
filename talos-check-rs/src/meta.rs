@@ -1,24 +1,38 @@
 use k8s_openapi::api::core::v1::Namespace;
 use kube::core::ObjectMeta;
 
-pub fn namespace(name: String) -> Namespace {
+pub fn namespace(name: &str) -> Namespace {
     Namespace {
         metadata: metadata(name),
         ..Default::default()
     }
 }
 
-pub fn metadata(name: String) -> ObjectMeta {
+pub fn metadata(name: &str) -> ObjectMeta {
     ObjectMeta {
-        name: Some(name),
+        name: Some(name.into()),
         ..Default::default()
     }
 }
 
-pub fn namespaced_metadata(namespace: &Namespace, name: String) -> ObjectMeta {
+pub fn namespaced_metadata(namespace: &Namespace, name: &str) -> ObjectMeta {
     ObjectMeta {
-        name: Some(name),
+        name: Some(name.into()),
         namespace: namespace.metadata.name.clone(),
         ..Default::default()
+    }
+}
+
+pub trait AddLabel {
+    fn add_label(&self, name: &str, value: &str) -> Self;
+}
+
+impl AddLabel for ObjectMeta {
+    fn add_label(&self, name: &str, value: &str) -> Self {
+        let mut result = self.clone();
+        let mut labels = result.labels.unwrap_or_default();
+        labels.insert(name.into(), value.into());
+        result.labels = Some(labels);
+        result
     }
 }

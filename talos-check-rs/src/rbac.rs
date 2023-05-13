@@ -5,14 +5,14 @@ use k8s_openapi::api::{
 
 use crate::meta::{metadata, namespaced_metadata};
 
-pub fn service_account(namespace: &Namespace, name: String) -> ServiceAccount {
+pub fn service_account(namespace: &Namespace, name: &str) -> ServiceAccount {
     ServiceAccount {
         metadata: namespaced_metadata(namespace, name),
         ..Default::default()
     }
 }
 
-pub fn cluster_role(name: String, rules: Vec<PolicyRule>) -> ClusterRole {
+pub fn cluster_role(name: &str, rules: Vec<PolicyRule>) -> ClusterRole {
     ClusterRole {
         metadata: metadata(name),
         rules: Some(rules),
@@ -20,9 +20,9 @@ pub fn cluster_role(name: String, rules: Vec<PolicyRule>) -> ClusterRole {
     }
 }
 
-pub fn policy_rule(resources: Vec<String>, verbs: Vec<Verb>) -> PolicyRule {
+pub fn policy_rule(resources: Vec<&str>, verbs: Vec<Verb>) -> PolicyRule {
     PolicyRule {
-        resources: Some(resources),
+        resources: Some(resources.iter().map(|v| v.to_string()).collect()),
         verbs: verbs.iter().map(|v| v.to_string()).collect(),
         ..Default::default()
     }
@@ -34,7 +34,7 @@ pub enum Verb {
 }
 
 impl std::string::ToString for Verb {
-    fn to_string(self: &Self) -> String {
+    fn to_string(&self) -> String {
         match self {
             Verb::List => "list",
             Verb::Get => "get",
@@ -44,26 +44,25 @@ impl std::string::ToString for Verb {
 }
 
 pub trait AsRoleRef {
-    fn as_ref(self: &Self) -> RoleRef;
+    fn as_ref(&self) -> RoleRef;
 }
 
 impl AsRoleRef for ClusterRole {
-    fn as_ref(self: &Self) -> RoleRef {
+    fn as_ref(&self) -> RoleRef {
         RoleRef {
             api_group: "rbac.authorization.k8s.io".to_string(),
             kind: "ClusterRole".to_string(),
             name: self.metadata.name.clone().unwrap(),
-            ..Default::default()
         }
     }
 }
 
 pub trait AsSubject {
-    fn as_subject(self: &Self) -> Subject;
+    fn as_subject(&self) -> Subject;
 }
 
 impl AsSubject for ServiceAccount {
-    fn as_subject(self: &Self) -> Subject {
+    fn as_subject(&self) -> Subject {
         Subject {
             kind: "ServiceAccount".to_string(),
             name: self.metadata.name.clone().unwrap(),
@@ -74,7 +73,7 @@ impl AsSubject for ServiceAccount {
 }
 
 pub fn cluster_role_binding(
-    name: String,
+    name: &str,
     role_ref: RoleRef,
     subjects: Vec<Subject>,
 ) -> ClusterRoleBinding {
@@ -82,6 +81,5 @@ pub fn cluster_role_binding(
         metadata: metadata(name),
         role_ref,
         subjects: Some(subjects),
-        ..Default::default()
     }
 }
