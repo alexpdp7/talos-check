@@ -3,10 +3,10 @@ use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{Namespace, Service, ServiceAccount};
 use k8s_openapi::api::networking::v1::Ingress;
 use k8s_openapi::api::rbac::v1::{ClusterRole, ClusterRoleBinding};
-use talos_check_rs::meta::*;
-use talos_check_rs::rbac::*;
-use talos_check_rs::util::{combine_yamls, to_yaml};
-use talos_check_rs::workload::*;
+use krust_manifesto::meta::*;
+use krust_manifesto::rbac::*;
+use krust_manifesto::util::{combine_yamls, to_yaml};
+use krust_manifesto::workload::*;
 
 struct TalosCheck {
     namespace: Namespace,
