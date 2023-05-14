@@ -1,3 +1,4 @@
+use clap::Parser;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{Namespace, Service, ServiceAccount};
 use k8s_openapi::api::networking::v1::Ingress;
@@ -66,7 +67,14 @@ impl TalosCheck {
     }
 }
 
+#[derive(Parser)]
+struct Args {
+    namespace: String,
+    host_name: String,
+}
+
 pub(crate) fn main() {
-    let check = TalosCheck::create("talos-check", "monitor");
+    let args = Args::parse();
+    let check = TalosCheck::create(&args.namespace, &args.host_name);
     print!("{}", check.as_yaml());
 }

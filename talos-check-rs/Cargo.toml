@@ -10,3 +10,4 @@ kube = { version = "0.82.2", features = ["runtime", "derive"] }
 k8s-openapi = { version = "0.18.0", features = ["v1_26"] }
 serde_yaml = "0.9.21"
 serde = "1.0.163"
+clap = { version = "4.2.7", features = ["derive"] }
