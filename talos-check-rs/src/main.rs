@@ -2,13 +2,10 @@ use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{Namespace, Service, ServiceAccount};
 use k8s_openapi::api::networking::v1::Ingress;
 use k8s_openapi::api::rbac::v1::{ClusterRole, ClusterRoleBinding};
-use talos_check_rs::meta::namespace;
-use talos_check_rs::rbac::{
-    cluster_role, cluster_role_binding, policy_rule, service_account, AsRoleRef, AsSubject, Verb,
-};
-use talos_check_rs::workload::{
-    container_port, deployment, GetIngress, Protocol, SetServiceAccount,
-};
+use talos_check_rs::meta::*;
+use talos_check_rs::rbac::*;
+use talos_check_rs::util::to_yaml;
+use talos_check_rs::workload::*;
 
 struct TalosCheck {
     namespace: Namespace,
@@ -52,17 +49,22 @@ impl TalosCheck {
         }
     }
 
+    fn yamls(&self) -> Vec<String> {
+        vec![
+            to_yaml(&self.namespace),
+            to_yaml(&self.service_account),
+            to_yaml(&self.cluster_role),
+            to_yaml(&self.cluster_role_binding),
+            to_yaml(&self.deployment),
+            to_yaml(&self.service),
+            to_yaml(&self.ingress),
+        ]
+    }
+
     fn as_yaml(&self) -> String {
-        format!(
-            "---\n{}---\n{}---\n{}---\n{}---\n{}---\n{}---\n{}",
-            serde_yaml::to_string(&self.namespace).unwrap(),
-            serde_yaml::to_string(&self.service_account).unwrap(),
-            serde_yaml::to_string(&self.cluster_role).unwrap(),
-            serde_yaml::to_string(&self.cluster_role_binding).unwrap(),
-            serde_yaml::to_string(&self.deployment).unwrap(),
-            serde_yaml::to_string(&self.service).unwrap(),
-            serde_yaml::to_string(&self.ingress).unwrap(),
-        )
+        self.yamls()
+            .iter()
+            .fold("".to_string(), |acc, y| format!("{acc}---\n{y}"))
     }
 }
 
