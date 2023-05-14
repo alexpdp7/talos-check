@@ -20,10 +20,11 @@ pub fn cluster_role(name: &str, rules: Vec<PolicyRule>) -> ClusterRole {
     }
 }
 
-pub fn policy_rule(resources: Vec<&str>, verbs: Vec<Verb>) -> PolicyRule {
+pub fn policy_rule(resources: Vec<&str>, verbs: Vec<Verb>, api_groups: Vec<&str>) -> PolicyRule {
     PolicyRule {
         resources: Some(resources.iter().map(|v| v.to_string()).collect()),
         verbs: verbs.iter().map(|v| v.to_string()).collect(),
+        api_groups: Some(api_groups.iter().map(|ag| ag.to_string()).collect()),
         ..Default::default()
     }
 }

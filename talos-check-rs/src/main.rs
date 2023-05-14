@@ -24,7 +24,7 @@ impl TalosCheck {
     fn create(namespace_name: &str, host_name: &str) -> TalosCheck {
         let namespace = namespace(namespace_name);
         let service_account = service_account(&namespace, "monitor");
-        let get_list_nodes = policy_rule(vec!["nodes"], vec![Verb::List, Verb::Get]);
+        let get_list_nodes = policy_rule(vec!["nodes"], vec![Verb::List, Verb::Get], vec![""]);
         let cluster_role =
             cluster_role(&format!("{namespace_name}-get-nodes"), vec![get_list_nodes]);
         let cluster_role_binding = cluster_role_binding(
