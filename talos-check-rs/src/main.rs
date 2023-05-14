@@ -4,7 +4,7 @@ use k8s_openapi::api::networking::v1::Ingress;
 use k8s_openapi::api::rbac::v1::{ClusterRole, ClusterRoleBinding};
 use talos_check_rs::meta::*;
 use talos_check_rs::rbac::*;
-use talos_check_rs::util::to_yaml;
+use talos_check_rs::util::{combine_yamls, to_yaml};
 use talos_check_rs::workload::*;
 
 struct TalosCheck {
@@ -62,9 +62,7 @@ impl TalosCheck {
     }
 
     fn as_yaml(&self) -> String {
-        self.yamls()
-            .iter()
-            .fold("".to_string(), |acc, y| format!("{acc}---\n{y}"))
+        combine_yamls(self.yamls())
     }
 }
 
