@@ -55,6 +55,8 @@ $ kubectl apply -f <(podman run --rm quay.io/alexpdp7/talos-check:latest talos-c
 
 The parameters correspond to the namespace to use for the manifests, and the host name to use.
 
+The `manifest.yaml` file in the root of this repo contains the output of the previous command.
+
 ```
 $ curl http://ingress.address/available --header "Host: monitor"
 {
@@ -70,7 +72,7 @@ $ curl http://ingress.address/available --header "Host: monitor"
  ],
  "needs_talos_update": true,
  "status": "NEEDS-KUBE-UPDATE-TO-v1.26.3-FROM-v1.26.1,NEEDS-TALOS-UPDATE-TO-v1.3.6-FROM-v1.3.4"
-``` 
+```
 
 You can use the `check_http` Nagios check to monitor a cluster for updates.
 

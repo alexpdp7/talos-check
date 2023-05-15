@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: talos-check
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: monitor
+  namespace: talos-check
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: talos-check-get-nodes
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  verbs:
+  - list
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: talos-check-monitor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: talos-check-get-nodes
+subjects:
+- kind: ServiceAccount
+  name: monitor
+  namespace: talos-check
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: monitor
+  name: monitor
+  namespace: talos-check
+spec:
+  selector:
+    matchLabels:
+      app: monitor
+  template:
+    metadata:
+      labels:
+        app: monitor
+    spec:
+      containers:
+      - image: quay.io/alexpdp7/talos-check:latest
+        name: monitor
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+      serviceAccount: monitor
+      serviceAccountName: monitor
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: monitor
+  name: monitor
+  namespace: talos-check
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+  selector:
+    app: monitor
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitor
+  namespace: talos-check
+spec:
+  rules:
+  - host: monitor
+    http:
+      paths:
+      - backend:
+          service:
+            name: monitor
+            port:
+              number: 8000
+        path: /
+        pathType: Prefix
