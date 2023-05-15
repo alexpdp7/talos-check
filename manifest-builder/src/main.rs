@@ -78,3 +78,10 @@ pub(crate) fn main() {
     let check = TalosCheck::create(&args.namespace, &args.host_name);
     print!("{}", check.as_yaml());
 }
+
+#[test]
+fn test() {
+    let generated = TalosCheck::create("talos-check", "monitor").as_yaml();
+    let expected = std::fs::read_to_string("../manifest.yaml").unwrap();
+    assert_eq!(generated, expected);
+}
