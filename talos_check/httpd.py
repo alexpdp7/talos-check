@@ -6,8 +6,10 @@ import talos_check
 
 
 def build_cluster_versions(o):
-    o["cluster_kubernetes_version"] = talos_check.get_cluster_kubernetes_version()
-    o["cluster_talos_versions"] = talos_check.get_cluster_talos_versions()
+    o["talos_versions"] = list(talos_check.get_cluster_talos_versions())
+    o["available_talos_version"] = talos_check.get_available_talos_version()
+    o["kubernetes_version"] = talos_check.get_cluster_kubernetes_version()
+    o["latest_available_supported_kubernetes_versions"] = talos_check.get_latest_available_supported_kubernetes_version()
     return o
 
 
@@ -25,18 +27,6 @@ def app(environ, start_response):
     o = dict()
     o = build_cluster_versions(o)
 
-    if environ["PATH_INFO"] == "/available":
-        o = build_available_versions(o)
-
-    statuses = []
-    if o.get("needs_kubernetes_update"):
-        statuses.append(f"NEEDS-KUBE-UPDATE-TO-{o['available_kubernetes_version']}-FROM-{o['cluster_kubernetes_version']}")
-    if o.get("needs_talos_update"):
-        outdated_talos_versions = ",".join(set(o["outdated_talos_versions"]))
-        statuses.append(f"NEEDS-TALOS-UPDATE-TO-{o['available_talos_version']}-FROM-{outdated_talos_versions}")
-    if not statuses:
-        statuses = ["OK"]
-    o["status"] = ",".join(statuses)
     response = json.dumps(o, indent=True).encode("utf8") + b"\n"
     status = "200 OK"
     response_headers = [
