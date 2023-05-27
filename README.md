@@ -69,22 +69,15 @@ The `manifest.yaml` file in the root of this repo contains the output of the pre
 ```
 $ curl http://ingress.address/available --header "Host: monitor"
 {
- "available_kubernetes_version": "v1.26.3",
- "cluster_kubernetes_version": "v1.26.1",
- "available_talos_version": "v1.3.6",
- "cluster_talos_versions": [
-  "v1.3.4"
+ "talos_versions": [
+  "v1.4.4"
  ],
- "needs_kubernetes_update": true,
- "outdated_talos_versions": [
-  "v1.3.4"
- ],
- "needs_talos_update": true,
- "status": "NEEDS-KUBE-UPDATE-TO-v1.26.3-FROM-v1.26.1,NEEDS-TALOS-UPDATE-TO-v1.3.6-FROM-v1.3.4"
-```
-
-You can use the `check_http` Nagios check to monitor a cluster for updates.
-
-```
-$ /usr/lib64/nagios/plugins/check_http -H monitor -I ingress.address -s OK
+ "available_talos_version": "v1.4.4",
+ "kubernetes_version": "v1.27.1",
+ "latest_available_supported_kubernetes_versions": {
+  "1.27": "1.27.2",
+  "1.26": "1.26.5",
+  "1.25": "1.25.10"
+ }
+}
 ```
