@@ -48,7 +48,7 @@ $ curl http://localhost:8000/
 The code contains a Nagios check.
 
 ```
-$ ./check_talos_version http://localhost:8000
+$ ./check_talos_version http://localhost:8000 host_header
 WARNING Running outdated Kubernetes version v1.27.1, update to v1.27.2. Running Talos v1.4.4; available v1.4.4. Running Kubernetes v1.27.1, available v1.27.2.
 $ echo $?
 1
