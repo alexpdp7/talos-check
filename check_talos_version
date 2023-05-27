@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+import json
+import sys
+import urllib.request
+
+
+def _kubernetes_major_str_to_tuple(m):
+    return tuple(map(int, m.split(".")))
+
+
+with urllib.request.urlopen(sys.argv[1]) as f:
+    j = json.loads(f.read())
+
+
+running_talos_versions_str = ", ".join(j["talos_versions"])
+latest_available_supported_kubernetes_versions = j["latest_available_supported_kubernetes_versions"]
+latest_supported_kubernetes_major = sorted(latest_available_supported_kubernetes_versions.keys(), key=_kubernetes_major_str_to_tuple, reverse=True)[0]
+latest_supported_kubernetes = "v" + latest_available_supported_kubernetes_versions[latest_supported_kubernetes_major]
+
+status = f"Running Talos {running_talos_versions_str}; available {j['available_talos_version']}. Running Kubernetes {j['kubernetes_version']}, available {latest_supported_kubernetes}."
+
+outdated_talos_versions = []
+
+for talos_version in j["talos_versions"]:
+    if talos_version != j["available_talos_version"]:
+       outdated_talos_versions.append(talos_version)
+
+code = 0
+
+if outdated_talos_versions:
+   status = f"Running outdated Talos versions {', '.join(outdated_talos_versions)}; update to {j['available_talos_version']}. {status}"
+   code = 1
+
+if latest_supported_kubernetes != j["kubernetes_version"]:
+   status = f"Running outdated Kubernetes version {j['kubernetes_version']}, update to {latest_supported_kubernetes}. {status}"
+   code = 1
+
+
+status_code = {0: "OK", 1: "WARNING"}[code]
+status = f"{status_code} {status}"
+
+print(status)
+sys.exit(code)
