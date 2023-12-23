@@ -54,6 +54,7 @@ spec:
     spec:
       containers:
       - image: quay.io/alexpdp7/talos-check:latest
+        imagePullPolicy: Always
         name: monitor
         ports:
         - containerPort: 8000
