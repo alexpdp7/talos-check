@@ -62,7 +62,7 @@ def get_latest_available_supported_kubernetes_version():
     for schedule in schedules["schedules"]:
         release = str(schedule["release"])
         if release in supported_kubernetes_versions:
-            previous_patches = schedule["previousPatches"]
+            previous_patches = schedule.get("previousPatches", [])
             if len(previous_patches) > 0:
                 release_latest_patch = previous_patches[0]["release"]
                 supported_latest[release] = release_latest_patch
