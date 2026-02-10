@@ -54,17 +54,8 @@ $ echo $?
 1
 ```
 
-The code also includes an executable script that builds Kubernetes manifests to deploy the httpd server.
-These manifests use the quay.io/alexpdp7/talos-check image.
-The image also includes the manifest builder.
-
-```
-$ kubectl apply -f <(podman run --rm quay.io/alexpdp7/talos-check:latest talos-check-manifest-builder talos-check monitor)
-```
-
-The parameters correspond to the namespace to use for the manifests, and the host name to use.
-
-The `manifest.yaml` file in the root of this repo contains the output of the previous command.
+The `manifest.yaml` file in the root of this repo contains Kubernetes manifests to deploy the http server.
+The manifests create a `talos-check` namespace and use the `monitor` host.
 
 ```
 $ curl http://ingress.address/available --header "Host: monitor"
