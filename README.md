@@ -25,7 +25,7 @@ It can also fetch the latest versions of Talos and Kubernetes from GitHub.
 {'1.27': '1.27.2', '1.26': '1.26.5', '1.25': '1.25.10'}
 ```
 
-The code contains an httpd server that exposes this information as JSON.
+The code contains an http server that exposes this information as JSON.
 
 ```
 $ talos-check-httpd
